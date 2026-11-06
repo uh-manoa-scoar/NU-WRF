@@ -1,7 +1,27 @@
+
+
 **3. Technical Description of Model Codes, Implementation, and User Guidelines**
 
 **3.1 Model Code**
-The implementation of sea spray and wave physics into the NU-WRF model is available at [website] in the branch seolab_spray.
+The implementation of sea spray and wave physics into the NU-WRF model is available in the branch seolab_spray created from the develop branch of the nu-wrf-dev project in the ASTG/NUWRF group on Gitlab. All source code modifications are viewable on GitLab, with the major changes summarized below.
+
+- **WRF/dyn_em/module_first_rk_step_part1.F**: In subroutine *first_rk_step_part1*, passed new arguments from grid (wave input variables and spray output variables) to call the subroutine surface_driver.
+- **WRF/phys/module_surface_driver.F**: 
+  - In the subroutine surface_driver, passed new arguments to MYNN surface layer calls, i.e., the main subroutine *SFCLAY_mynn* and the sea ice wrapper subroutine *mynn_seaice_wrapper*, which itself calls *SFCLAY_mynn*.
+  - In subroutine *mynn_seaice_wrapper*, managed passing of new arguments to calls of *SFCLAY_mynn*.
+- WRF/phys/module_sf_mynn.F: Most changes to NU-WRF source code are in this module.
+  - In subroutine *SFCLAY_mynn* (a call on 2D surface fields), managed passing of new arguments to call of subroutine *SFCLAY1D_mynn* (a call on 1D subsets of 2D fields).
+  - In subroutine *SFCLAY1D_mynn*:
+    - Added new options to IF statement that calculates momentum roughness length ZNT.
+    - Added new options to IF statement that calculates scalar roughness lengths Z_T and Z_Q.
+    - After calculations of required intermediary variables in existing code (e.g., RMOL), added a call to the top-level spray heat flux subroutine *sprayHFs*.  This involves adding a large IF tree to manage spray options.
+    - After calling *sprayHFs*, updated existing surface layer variables MOL, qstar, QFX, LH, and HFX.
+    - Added calculations and new variables for 2-m conditions with spray.
+  - Added new subroutines *edson_etal_2013_wave1*, *edson_etal_2013_wave2*, *sauvage_etal_2023_wave1*, and *sauvage_etal_2023_wave2* to calculate new ZNT options.
+- Added file **WRF/phys/module_sf_sprayHFs.F**, which contains the top-level spray subroutine *sprayHFs* and additional subroutines that are used by it. This is external code provided by the project team.
+- **WRF/Registry/Registry.EM_COMMON**: Added wave input variables and spray output variables.
+- Updated **WRF/main/depend.common** and **WRF/phys/Makefile** to include new file **module_sf_sprayHFs.F**.
+
 
 **3.2 User Guidelines for New Sea Spray and Wave Physics**
 
