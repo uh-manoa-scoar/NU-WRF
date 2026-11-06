@@ -1,3 +1,8 @@
 # NU-WRF
 
-This folder contains modified Fortran code to implement wave-dependent momentum flux and sea-spray formulation in the surface layer of WRF. As of now this is done for the MYNN scheme. It also contains code for 1D ocean model implementation based on KC model.
+This folder contains the progress on two key development objectives:
+
+1. Implementation of sea-state–dependent wind stress and sea spray heat flux parameterizations in NU-WRF, and
+2. Development of a one-dimensional (1-D) ocean mixed-layer (OML) model including surface wave effects within NU-WRF.
+
+
