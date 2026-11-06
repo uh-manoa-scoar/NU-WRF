@@ -77,6 +77,6 @@ The final published configuration of the COARE-SPRAY model was not available at 
 
 **References**
 
-Barr, B. W., S. S. Chen, and C. W. Fairall, 2023: *Sea-state-dependent sea spray and air-sea heat fluxes in tropical cyclones: A new parameterization for fully coupled atmosphere-wave-ocean models.* J. Atmos. Sci., 80, 933 – 960, https://doi.org/10.1175/JAS-D-22-0126.1.
-Edson, J. B., V. Jampana, R. A. Weller, S. P. Bigorre, A. J. Plueddemann, C. W. Fairall, S. D. Miller, L. Mahrt, D. Vickers, and H. Hersbach, 2013: *On the exchange of momentum over the open ocean.* J. Phys. Oceanogr., 43, 1589 – 1610, https://doi.org/10.1175/JPO-D-12-0173.1.
-Sauvage, C., H. Seo, C. A. Clayson, and J. B. Edson, 2023: *Improving wave-based air-sea momentum flux parameterization in mixed seas.* J. Geophys. Res. Oceans, 128, e2022JC019277.
+- Barr, B. W., S. S. Chen, and C. W. Fairall, 2023: *Sea-state-dependent sea spray and air-sea heat fluxes in tropical cyclones: A new parameterization for fully coupled atmosphere-wave-ocean models.* J. Atmos. Sci., 80, 933 – 960, https://doi.org/10.1175/JAS-D-22-0126.1.
+- Edson, J. B., V. Jampana, R. A. Weller, S. P. Bigorre, A. J. Plueddemann, C. W. Fairall, S. D. Miller, L. Mahrt, D. Vickers, and H. Hersbach, 2013: *On the exchange of momentum over the open ocean.* J. Phys. Oceanogr., 43, 1589 – 1610, https://doi.org/10.1175/JPO-D-12-0173.1.
+- Sauvage, C., H. Seo, C. A. Clayson, and J. B. Edson, 2023: *Improving wave-based air-sea momentum flux parameterization in mixed seas.* J. Geophys. Res. Oceans, 128, e2022JC019277.
