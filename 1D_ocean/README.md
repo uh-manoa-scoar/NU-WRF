@@ -17,3 +17,9 @@ In the NU-WRF output file, the ocean variables OM_MLD, OM_TMP, and OM_S are upda
 
 Similarly, KC04 is implemented as a new module (i.e., module_sf_kc2004oml.F) and activated by setting “sf_ocean_physics=4” in the namelist. This more recent scheme involves additional mixing terms related to wave breaking and Langmuir turbulence; thus, initial conditions of surface wave fields will be needed. The latter can eventually be taken from the wave variables newly implemented for the wave-based momentum and sea-spray parameterization (i.e., significant wave height, wave period), or if necessary, new wave fields will be made available in either the wrfinput or wrflowinp file. 
 
+
+**References**
+
+Pollard, R. T., P. B. Rhines, R. O R. Y. Thompson, 2006: *The deepening of the wind-mixed layer*. Geophysical Fluid Dynamics, 4, 381-404      
+Price, J. F., 1981: *Upper Ocean Response to a Hurricane*. J. Phys. Oceanogr., 11, 153–175       
+Price, J. F., T. B. Sanford, and G. Z. Forristall, 1994: *Forced Stage Response to a Moving Hurricane.* J. Phys. Oceanogr., 24, 233–260      
