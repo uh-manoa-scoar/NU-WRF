@@ -1,8 +1,6 @@
+**1. Technical Description of Model Codes, Implementation, and User Guidelines**
 
-
-**3. Technical Description of Model Codes, Implementation, and User Guidelines**
-
-**3.1 Model Code**
+**1.1 Model Code**
 The implementation of sea spray and wave physics into the NU-WRF model is available in the branch seolab_spray created from the develop branch of the nu-wrf-dev project in the ASTG/NUWRF group on Gitlab. All source code modifications are viewable on GitLab, with the major changes summarized below.
 
 - **WRF/dyn_em/module_first_rk_step_part1.F**: In subroutine *first_rk_step_part1*, passed new arguments from grid (wave input variables and spray output variables) to call the subroutine surface_driver.
@@ -23,7 +21,7 @@ The implementation of sea spray and wave physics into the NU-WRF model is availa
 - Updated **WRF/main/depend.common** and **WRF/phys/Makefile** to include new file **module_sf_sprayHFs.F**.
 
 
-**3.2 User Guidelines for New Sea Spray and Wave Physics**
+**1.2 User Guidelines for New Sea Spray and Wave Physics**
 
 The new sea spray and wave physics are implemented in the MYNN surface layer scheme in NU-WRF.  The MYNN surface layer scheme is selected by setting sf_sfclay_physics = 5 in the &physics section of the WRF input file namelist.input.  
 
@@ -57,7 +55,8 @@ The remaining six [?] fields are the changes to 2-m temperature, potential tempe
 
 All calculations involving spray occur within the MYNN surface layer call.  In the WRF code, a surface layer diagnostics module [name] is called downstream of the MYNN surface layer call, and this diagnostics module overrides the calculations made within the MYNN surface layer call and writes the results to [variable names].  The diagnostics module operates on the total heat fluxes coming from the surface layer module and computes 2-m diagnostics assuming that the fluxes are due to bulk physics only.  When spray is present, this diagnostics module produces incorrect results due to the incorrect attribution of spray heat fluxes to bulk air-sea differences.  Thus, when using any of the isftxflx = 5XXXX options, the variables [variable names] should not be used but rather the new variables [variable names] provided by this work.  We note that when sea spray is not active, the variables [variable names] still produce the correct 2-m results for the bulk-only system.  Finally, we note that sea spray does not produce a direct affect on the wind profile in this work, so the diagnostic variables U10 and V10 are still valid.
 
-**3.3 Description of Wave and Spray Implementation and Guidance for Future Updates**
+**1.3 Description of Wave and Spray Implementation and Guidance for Future Updates**
+
 A full record of code changes made to implement wave and sea spray physics into NU-WRF can be found in the Git repo for the NU-WRF code.  The spray physics calculations are performed by a top-level subroutine called sprayHFs; this subroutine and supporting subroutines are included in a new file module_sf_sprayHFs.F in the directory [path].  Most modifications to existing NU-WRF code to implement the wave and spray physics were made to the MYNN surface layer module file, module_sf_mynn.F.  Outside of this file, changes were also made to the surface driver, Registry, and other files as needed to bring wave variables to the surface layer module and to handle input and output fields in memory.  Within module_sf_mynn.F, the major code modifications (excluding variable definitions, input/output field passing, and other code management-related items) are as follows:
 
 The IF loop defining the momentum roughness length (variable ZNT) was expanded to include the isftcflx = 5XXXX options.
