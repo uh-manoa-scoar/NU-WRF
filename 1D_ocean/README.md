@@ -1,4 +1,4 @@
-**Implementation of 1D ocean model in NU-WRF**
+**Implementation of 1-D ocean mixed layer model in NU-WRF**
 
 NU-WRF currently has the following 1-D OML modeling capability available:  
 - A slab (bulk) mixed-layer model by Pollard, Rhines, and Thompson (1972) that captures near-inertial currents and mixed-layer deepening (and the corresponding entrainment) by wind stress.    
@@ -20,6 +20,8 @@ Similarly, KC04 is implemented as a new module (i.e., module_sf_kc2004oml.F) and
 
 **References**
 
-Pollard, R. T., P. B. Rhines, R. O R. Y. Thompson, 2006: *The deepening of the wind-mixed layer*. Geophysical Fluid Dynamics, 4, 381-404      
-Price, J. F., 1981: *Upper Ocean Response to a Hurricane*. J. Phys. Oceanogr., 11, 153–175       
-Price, J. F., T. B. Sanford, and G. Z. Forristall, 1994: *Forced Stage Response to a Moving Hurricane.* J. Phys. Oceanogr., 24, 233–260      
+- Kantha, L. H., and C. A. Clayson, 1994: *An improved mixed layer model for geophysical applications*, J. Geophys. Res., 99(C12), 25235–25266, doi:10.1029/94JC02257.
+- Kantha, L. H., and C. A. Clayson, 2004: *On the effect of surface gravity waves on mixing in the oceanic mixed layer*, Ocean Modelling,, 6(2), 1463-5003, doi:10.1016/S1463-5003(02)00062-8.
+- Pollard, R. T., P. B. Rhines, R. O R. Y. Thompson, 2006: *The deepening of the wind-mixed layer*. Geophysical Fluid Dynamics, 4, 381-404      
+- Price, J. F., 1981: *Upper Ocean Response to a Hurricane*. J. Phys. Oceanogr., 11, 153–175       
+- Price, J. F., T. B. Sanford, and G. Z. Forristall, 1994: *Forced Stage Response to a Moving Hurricane.* J. Phys. Oceanogr., 24, 233–260      
