@@ -4,44 +4,41 @@
 
 The implementation of sea spray and wave-affected surface flux physics into the NU-WRF model is available in the branch `seolab_spray`, created from the `develop` branch of the `nu-wrf-dev` project in the `ASTG/NUWRF` group on GitLab. All source code modifications are viewable on GitLab, with the major changes summarized below.
 
-- **WRF/dyn_em/module_first_rk_step_part1.F**: In subroutine `first_rk_step_part1`, passed new arguments from grid (wave input variables and spray output variables) to the call to the subroutine `surface_driver`.
+- **WRF/dyn_em/module_first_rk_step_part1.F**: In subroutine `first_rk_step_part1`, passed new arguments from memory (wave input variables and spray output variables) to the call to the subroutine `surface_driver`.
 - **WRF/phys/module_surface_driver.F**: 
   - In the subroutine `surface_driver`, passed new arguments to MYNN surface layer calls, i.e., the main subroutine `SFCLAY_mynn` and the sea ice wrapper subroutine `mynn_seaice_wrapper`, which itself calls `SFCLAY_mynn`.
   - In subroutine `mynn_seaice_wrapper`, managed passing of new arguments to calls of `SFCLAY_mynn`.
-- WRF/phys/module_sf_mynn.F: Most changes to NU-WRF source code are in this module.
-  - In subroutine *SFCLAY_mynn* (a call on 2D surface fields), managed passing of new arguments to call of subroutine *SFCLAY1D_mynn* (a call on 1D subsets of 2D fields).
-  - In subroutine *SFCLAY1D_mynn*:
-    - Added new options to IF statement that calculates momentum roughness length ZNT.
-    - Added new options to IF statement that calculates scalar roughness lengths Z_T and Z_Q.
-    - After calculations of required intermediary variables in existing code (e.g., RMOL), added a call to the top-level spray heat flux subroutine *sprayHFs*.  This involves adding a large IF tree to manage spray options.
-    - After calling *sprayHFs*, updated existing surface layer variables MOL, qstar, QFX, LH, and HFX.
+- **WRF/phys/module_sf_mynn.F**: Most changes to NU-WRF source code are in this module.
+  - In subroutine `SFCLAY_mynn` (a call on 2D surface fields), managed passing of new arguments to call of subroutine `SFCLAY1D_mynn` (a call on 1D subsets of 2D fields).
+  - In subroutine `SFCLAY1D_mynn`:
+    - Added new options to `IF` statement that calculates momentum roughness length `ZNT`.
+    - Added new options to `IF` statement that calculates scalar roughness lengths `Z_T` and `Z_Q`.
+    - After calculations for stability and friction velocity (`UST`), added a call to the top-level spray heat flux subroutine `sprayHFs`.  This involved adding a large `IF` tree to manage spray options.
+    - After calling `sprayHFs`, updated existing surface layer variables `MOL`, `qstar`, `QFX`, `LH`, and `HFX`.
     - Added calculations and new variables for 2-m conditions with spray.
-  - Added new subroutines *edson_etal_2013_wave1*, *edson_etal_2013_wave2*, *sauvage_etal_2023_wave1*, and *sauvage_etal_2023_wave2* to calculate new ZNT options.
-- Added file **WRF/phys/module_sf_sprayHFs.F**, which contains the top-level spray subroutine *sprayHFs* and additional subroutines that are used by it. This is external code provided by the project team.
+  - Added new subroutines `edson_etal_2013_wave1`, `edson_etal_2013_wave2`, `sauvage_etal_2023_wave1`, and `sauvage_etal_2023_wave2` to calculate new `ZNT` options.
+- **WRF/phys/module_sf_sprayHFs.F**: Added this file, which contains the top-level spray subroutine `sprayHFs` and additional subroutines that are used by it. This is external code provided by the project team.
 - **WRF/Registry/Registry.EM_COMMON**: Added wave input variables and spray output variables.
 - Updated **WRF/main/depend.common** and **WRF/phys/Makefile** to include new file **module_sf_sprayHFs.F**.
 
 
-**2. User Guidelines for New Sea Spray and Wave Physics**
+## **2. User Guidelines**
 
-The new sea spray and wave physics are implemented in the MYNN surface layer scheme in NU-WRF.  The MYNN surface layer scheme is selected by setting sf_sfclay_physics = 5 in the &physics section of the WRF input file namelist.input.  
+The new sea spray and wave physics are available in the MYNN surface layer scheme in NU-WRF.  The MYNN surface layer scheme is selected by setting `sf_sfclay_physics = 5` in the `&physics` section of the WRF input file `namelist.input`.  
 
-The new sea spray and wave physics options are controlled using the isftcflx parameter in the &physics section of namelist.input.  New options are structured using integers in the format 5XXXX.  The leading 5 indicates that the option belongs to the family of new wave and spray physics options provided by this work.  The second and third digit from the left specify the option to use for momentum roughness length, and these options select between the wave-based roughness options implemented in this work.  The available options are:
+The new sea spray and wave physics options are controlled using the `isftcflx` parameter in the `&physics` section of `namelist.input`.  New options are structured using integers in the format `5XXXX`.  The leading `5` indicates that the option belongs to the family of new wave and spray physics options provided by this work.  The second and third digit from the left specify the option to use for momentum roughness length, and these options select between the wave-based roughness options implemented in this work.  The available options are:
 
-**isftcflx = 500XX**: uses the COARE 3.5 wind-based model.  This is the baseline option for the new family of parameterizations.
-
-**isftcflx = 501XX:** uses the model based on peak wave age.  This option requires the wave input variables [].
-
-**isftcflx = 502XX:** uses the model based on peak wave age and significant wave height.  This option requires the wave input variables [].
-
-**isftcflx = 503XX:** uses the model based on mean wave age.  This option requires the wave input variables [].
-
-**isftcflx = 504XX:** uses the model based on wind-wave misalignment angle.  This option requires the wave input variables [].
+- `isftcflx = 500XX`: uses the COARE 3.5 wind-based model (Edson et al. 2013).  This is the baseline option for the new family of parameterizations.
+- `isftcflx = 501XX`: uses the COARE 3.5 wave-based model based on peak wave age (Edson et al. 2013).  This option requires the wave input variable `WP_WAVE` (wave period), which should contain the *peak* wave period.
+- `isftcflx = 502XX`: uses the COARE 3.5 wave-based model based on peak wave age and significant wave height (Edson et al. 2013).  This option requires the wave input variables `SWH_WAVE` (significant wave height) and `WP_WAVE`, where `WP_WAVE` should contain the *peak* wave period.
+- `isftcflx = 503XX`: uses the modified COARE 3.5 wave-based model based on mean wave age and significant wave height (Sauvage et al. 2023).  This option requires the wave input variables `SWH_WAVE` and `WP_WAVE`, where `WP_WAVE` should contain the *mean* wave period.
+- `isftcflx = 504XX`: uses the modified COARE 3.5 wave-based model based on wind-wave misalignment, peak wave age, and significant wave height (Sauvage et al. 2023).  This option requires the wave input variables `SWH_WAVE`, `WP_WAVE`, and `WDIR_WAVE` (peak wave direction), where `WP_WAVE` should contain the *peak* wave period.
 
 The first and second digit from the right specify the option to use for heat fluxes, and these options select between the sea spray heat flux options implemented in this work.  The available options are:
 
-isftcflx = 5XX00: uses COARE 3.6 scalar roughness lengths, with no sea spray physics (i.e., bulk physics only).  This is the baseline option for the new family of parameterizations.
-[add the other spray options here… don’t remember the order]
+- `isftcflx = 5XX00`: uses COARE 3.6 scalar roughness lengths, with no sea spray physics (i.e., bulk physics only).  This is the baseline option for the new family of parameterizations.
+- `isftcflx = 5XX01`: uses COARE 3.6 scalar roughness lengths, with spray.  Uses original Barr et al. (2023) spray model coefficients and wave physics parameterized by wind per Barr et al. (2027, in prep).
+- `isftcflx = 5XX02`: same as `5XX01` except that wave physics use input wave properties `SWH_WAVE`, `EPS_WAVE` (wave energy dissipation flux), `DCP_WAVE` (dominant/peak phase speed), and `MSS_WAVE` (mean square wave slope), as in Barr et al. (2023).
 
 The keys above can be combined to provide a wide range of options for users to explore wave and sea spray physics.  For example, [give a couple of examples].
 
