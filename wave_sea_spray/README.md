@@ -39,43 +39,52 @@ The first and second digit from the right specify the option to use for heat flu
 - `isftcflx = 5XX00`: uses COARE 3.6 scalar roughness lengths, with no sea spray physics (i.e., bulk physics only).  This is the baseline option for the new family of parameterizations.
 - `isftcflx = 5XX01`: uses COARE 3.6 scalar roughness lengths, with spray.  Uses original Barr et al. (2023) spray model coefficients and wave physics parameterized by wind per Barr et al. (2027, in prep).
 - `isftcflx = 5XX02`: same as `5XX01` except that wave physics use input wave properties `SWH_WAVE`, `EPS_WAVE` (wave energy dissipation flux), `DCP_WAVE` (dominant/peak phase speed), and `MSS_WAVE` (mean square wave slope), as in Barr et al. (2023).
+- `isftcflx = 5XX03`: uses COARE 3.6 scalar roughness lengths, with spray.  Uses Control spray model coefficients (C3.6_CtlSpr) and wave physics parameterized by wind from Barr et al. (2027, in prep).
+- `isftcflx = 5XX04`: same as `5XX03` except that wave physics use input wave properties `SWH_WAVE`, `EPS_WAVE`, `DCP_WAVE`, and `MSS_WAVE`, as in Barr et al. (2023).
+- `isftcflx = 5XX05`: uses COARE 3.6 scalar roughness lengths, with spray.  Uses spray model coefficients optimized for the COARE 3.6 scalar roughness lengths (C3.6_OptSpr) and wave physics parameterized by wind from Barr et al. (2027, in prep).
+- `isftcflx = 5XX06`: same as `5XX05` except that wave physics use input wave properties `SWH_WAVE`, `EPS_WAVE`, `DCP_WAVE`, and `MSS_WAVE`, as in Barr et al. (2023).
+- `isftcflx = 5XX07`: uses COARE-SPRAY model with scalar roughness lengths and spray model coefficients optimized to fit direct covariance data, per Barr et al. (2027, in prep).  Wave physics parameterized by wind from Barr et al. (2027, in prep).
+- `isftcflx = 5XX08`: same as `5XX07` except that wave physics use input wave properties `SWH_WAVE`, `EPS_WAVE`, `DCP_WAVE`, and `MSS_WAVE`, as in Barr et al. (2023).
 
-The keys above can be combined to provide a wide range of options for users to explore wave and sea spray physics.  For example, [give a couple of examples].
+The keys above can be combined to provide a wide range of options for users to explore wave and sea spray physics.  For example, `isftcflx = 50407` accounts for wind-wave misalignment in computing stress, requiring input wave properties `SWH_WAVE`, `WP_WAVE`, and `WDIR_WAVE`, and uses wind-based COARE-SPRAY for heat fluxes with spray, which does not require additional inputs of `EPS_WAVE`, `DCP_WAVE`, and `MSS_WAVE`.  Setting `isftcflx = 50000` uses wind-based COARE 3.5 for stress and COARE 3.6 for scalar roughness (no spray); this is considered the baseline or default for the new options introduced in this work.
 
-For options that depend on wave variables, the user must provide these on the mass point grid (i.e., unstaggered in x, y, and z directions) during preprocessing in wrflowinput files.  They will also need to activate these fields in the wrflowinput, output, and restart files as necessary by modifying the relevant lines in [WRF Registry file].
-The sea spray calculations modify the WRF heat flux variables HFX, LH, and QFX within the surface layer call, and these changes then propagate through model calculations.  In this way, sea spray does not produce new state or forcing fields that interact with WRF outside of the surface layer call.  The sea spray code does, however, provide eleven [?] diagnostic output fields that characterize the module’s behavior and aid in scientific interpretation of its effects.  These can be turned on or off in WRF output via the Registry file at [path].  Five [?] of these fields are spray mass and heat fluxes, described as follows:
+For options that require input wave variables, the user must provide these on the mass point grid (i.e., unstaggered in x, y, and z directions) during preprocessing in `wrflowinput` files.  They will also need to activate these fields in the `wrflowinput`, `output`, and `restart` files as necessary by modifying the relevant lines in **WRF/Registry/Registry.EM_COMMON**.
 
-[List spray flux output fields]
+The sea spray flux calculations modify the WRF heat flux variables `HFX`, `LH`, and `QFX` within the surface layer call, and these changes then propagate through model calculations.  In this way, sea spray does not produce new state or forcing fields that interact with WRF outside of the surface layer call.  The sea spray code does, however, provide eleven diagnostic output fields that characterize the module’s behavior and aid in scientific interpretation of its effects.  These can be turned on or off in WRF output via the Registry file at **WRF/Registry/Registry.EM_COMMON**.  Five of these fields are related to spray mass and heat fluxes, described as follows:
 
-The remaining six [?] fields are the changes to 2-m temperature, potential temperature, and specific humidity caused by spray and the actual 2-m values of these variables incorporating these changes.  These are:
+- `dHS1_SPR` [W m-2]: Change to surface sensible heat flux (`HFX`) due to spray, accounting for subgrid feedback between bulk and spray heat fluxes
+- `dHL1_SPR` [W m-2]: Change to surface latent heat flux (`LH`) due to spray, accounting for subgrid feedback between bulk and spray heat fluxes
+- `M_SPR` [kg m-2 s-1]: Generated spray mass flux
+- `H_SNSPR` [W m-2]: Net spray sensible heat flux, accounting for direct heating and evaporative cooling
+- `H_LSPR` [W m-2]: Spray latent heat flux from evaporation
 
-[List spray surface layer variable output fields]
+The remaining six fields are the changes to 2-m air properties caused by subgrid spray-layer feedback and the resulting 2-m values of these variables incorporating these changes.  These are:
 
-All calculations involving spray occur within the MYNN surface layer call.  In the WRF code, a surface layer diagnostics module [name] is called downstream of the MYNN surface layer call, and this diagnostics module overrides the calculations made within the MYNN surface layer call and writes the results to [variable names].  The diagnostics module operates on the total heat fluxes coming from the surface layer module and computes 2-m diagnostics assuming that the fluxes are due to bulk physics only.  When spray is present, this diagnostics module produces incorrect results due to the incorrect attribution of spray heat fluxes to bulk air-sea differences.  Thus, when using any of the isftxflx = 5XXXX options, the variables [variable names] should not be used but rather the new variables [variable names] provided by this work.  We note that when sea spray is not active, the variables [variable names] still produce the correct 2-m results for the bulk-only system.  Finally, we note that sea spray does not produce a direct affect on the wind profile in this work, so the diagnostic variables U10 and V10 are still valid.
+- `dTREF_SPR` [K]: Change to 2-m air temperature due to subgrid spray-layer feedback
+- `dTHREF_SPR` [K]: Change to 2-m air potential temperature due to subgrid spray-layer feedback
+- `dQREF_SPR` [kg kg-1]: Change to 2-m air specific humidity due to subgrid spray-layer feedback.  The spray module assumes that specific humidity and water vapor mixing ratio are equivalent, so this is also the change to 2-m water vapor mixing ratio due to subgrid spray-layer feedback.
+- `T2_SPR` [K]: 2-m air temperature including effects of subgrid spray-layer feedback.  This is the sum of `dTREF_SPR` and `SFCLAY1D_mynn`'s internal calculation of the WRF output variable `T2`.
+- `TH2_SPR` [K]: 2-m air potential temperature including effects of subgrid spray-layer feedback.  This is the sum of `dTHREF_SPR` and `SFCLAY1D_mynn`'s internal calculation of the WRF output variable `TH2`.
+- `Q2_SPR` [kg kg-1]: 2-m air specific humidity including effects of subgrid spray-layer feedback.  This is the sum of `dQREF_SPR` and `SFCLAY1D_mynn`'s internal calculation of the WRF output variable `Q2`.  The spray module assumes that specific humidity and water vapor mixing ratio are equivalent, so this is also the 2-m water vapor mixing ratio including effects of subgrid spray-layer feedback.
 
-Although the `mynn_seaice_wrapper` subroutine in **WRF/phys/module_surface_driver.F** has been updated to ingest the new sea spray input parameters, the interaction of sea spray with sea ice is not covered by the new spray model physics.  So, the sea spray physics should not be used in areas where sea ice is present.
+All calculations involving spray occur within the MYNN surface layer call (`SFCLAY_mynn`), which is called within the surface driver subroutine (`surface_driver` in **WRF/phys/module_surface_driver.F**).  In `surface_driver`, a surface layer diagnostics module `SFCDIAGS` (**WRF/phys/module_sf_sfcdiags.F**) can be called downstream of `SFCLAY_mynn` (calling `SFCDIAGS` appears to be governed by options set for the land surface scheme).  `SFCDIAGS` overrides the calculations for `T2`, `TH2`, and `Q2` made within `SFCLAY_mynn`.  `SFCDIAGS` operates on the total heat fluxes coming from the surface layer module and computes 2-m diagnostics assuming that the fluxes are due to bulk physics only.  When spray is present, this produces incorrect results due to the incorrect attribution of spray heat fluxes to bulk air-sea differences.  Thus, when spray is present, the variables `T2`, `TH2`, and `Q2` in WRF output should not be used but rather the new variables `T2_SPR`, `TH2_SPR`, and `Q2_SPR` provided by this work.  We note that sea spray does not produce a direct affect on the wind profile in this work, so the diagnosed variables `U10` and `V10` are still valid.
 
-**3. Description of Wave and Spray Implementation and Guidance for Future Updates**
+The `mynn_seaice_wrapper` subroutine in **WRF/phys/module_surface_driver.F** has been updated to ingest the new sea spray input and output parameters, but the interaction of sea spray with sea ice is not covered by the new spray model physics.  So, the sea spray physics should not be used in areas where sea ice is present.
 
-A full record of code changes made to implement wave and sea spray physics into NU-WRF can be found in the Git repo for the NU-WRF code.  The spray physics calculations are performed by a top-level subroutine called sprayHFs; this subroutine and supporting subroutines are included in a new file module_sf_sprayHFs.F in the directory [path].  Most modifications to existing NU-WRF code to implement the wave and spray physics were made to the MYNN surface layer module file, module_sf_mynn.F.  Outside of this file, changes were also made to the surface driver, Registry, and other files as needed to bring wave variables to the surface layer module and to handle input and output fields in memory.  Within module_sf_mynn.F, the major code modifications (excluding variable definitions, input/output field passing, and other code management-related items) are as follows:
+Sea spray effects are only applied in this work to the physical variables `HFX`, `QFX`, `LH`, `MOL`, and `qstar`.  The transfer coefficients `FLQC`, `FLHC`, `CHS`, `ch`, `CQS2`, `CHS2`, `Ck`, and `Cka`, which are diagnosed within `SFCLAY1D_mynn`, are not updated.  These may be updated in the future by/for a downstream user as necessary.
 
-The IF loop defining the momentum roughness length (variable ZNT) was expanded to include the isftcflx = 5XXXX options.
+## **3. Guidance for Future Development**
 
-The IF loop defining the thermal and moisture roughness lengths (variables ZT and ZQ) was expanded to include the isftcflx = 5XXXX options.
+The final published configuration of the COARE-SPRAY model was not available at the time of writing of this report.  Changes to update the current NU-WRF code to the final configuration are expected to be small, since the finalized COARE-SPRAY module will retain the overall structure and function of what already exists in NU-WRF.  Should a future user or developer wish to update the NU-WRF code to align with the final COARE-SPRAY configuration, the anticipated required changes are as follows:
 
-A large IF loop was added to define inputs and switches needed by sprayHFs, and to call sprayHFs to perform the spray calculations.
-The turbulent flux scales MOL and QSTAR were updated for the effects of spray.
-The heat fluxes HFX, QFX, and LH were updated for the effects of spray.
-2-m reference fields for temperature, potential temperature, and specific humidity were updated for the effects of spray.
-Subroutines were added or updated to include the new wave-dependent momentum roughness length formulations.
+- Bring in an updated version of **WRF/phys/module_sf_sprayHFs.F**.  This module is maintained by Ben Barr at https://github.com/bwbarr/sprayHFs under the branch `nu-wrf`.  Please coordinate with Ben Barr to ensure that the file is available and updated.
+- Update code comments and keys to the `whichSSGF` input variable in **WRF/phys/module_sf_mynn.F** to reflect the final description and terminology for the COARE-SPRAY model configuration.
 
-The final published configuration of the COARE-SPRAY model was not available at the time of writing of this report.  Should a future user or developer wish to update the NU-WRF code to align with this final configuration, the anticipated required changes are as follows:
+Please direct any questions regarding future changes to the spray code to Ben Barr at bbarr@ucar.edu.
 
-[add these here after getting access to the code on Gitlab again]
+## **References**
 
-
-**References**
-
-- Barr, B. W., S. S. Chen, and C. W. Fairall, 2023: *Sea-state-dependent sea spray and air-sea heat fluxes in tropical cyclones: A new parameterization for fully coupled atmosphere-wave-ocean models.* J. Atmos. Sci., 80, 933 – 960, https://doi.org/10.1175/JAS-D-22-0126.1.
-- Edson, J. B., V. Jampana, R. A. Weller, S. P. Bigorre, A. J. Plueddemann, C. W. Fairall, S. D. Miller, L. Mahrt, D. Vickers, and H. Hersbach, 2013: *On the exchange of momentum over the open ocean.* J. Phys. Oceanogr., 43, 1589 – 1610, https://doi.org/10.1175/JPO-D-12-0173.1.
-- Sauvage, C., H. Seo, C. A. Clayson, and J. B. Edson, 2023: *Improving wave-based air-sea momentum flux parameterization in mixed seas.* J. Geophys. Res. Oceans, 128, e2022JC019277.
+- Barr, B. W., S. S. Chen, and C. W. Fairall, 2023: Sea-state-dependent sea spray and air-sea heat fluxes in tropical cyclones: A new parameterization for fully coupled atmosphere-wave-ocean models. *J. Atmos. Sci.*, **80**, 933 – 960, https://doi.org/10.1175/JAS-D-22-0126.1.
+- Barr, B. W., H. Seo, J. B. Edson, C. Sauvage, C. A. Clayson, S. S. Chen, S. F. Zippel, B.-M. Kim, E. J. Thompson, and C. W. Fairall, *In Preparation* (anticipated 2027): Understanding and parameterizing bulk and sea spray heat fluxes in high winds using direct covariance air-sea heat flux observations.
+- Edson, J. B., V. Jampana, R. A. Weller, S. P. Bigorre, A. J. Plueddemann, C. W. Fairall, S. D. Miller, L. Mahrt, D. Vickers, and H. Hersbach, 2013: On the exchange of momentum over the open ocean. *J. Phys. Oceanogr.*, **43**, 1589 – 1610, https://doi.org/10.1175/JPO-D-12-0173.1.
+- Sauvage, C., H. Seo, C. A. Clayson, and J. B. Edson, 2023: Improving wave-based air-sea momentum flux parameterization in mixed seas. *J. Geophys. Res. Oceans*, **128**, e2022JC019277.
