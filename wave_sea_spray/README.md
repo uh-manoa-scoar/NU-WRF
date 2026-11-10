@@ -2,7 +2,7 @@
 
 ## **1. Model Code**
 
-The implementation of sea spray and wave-affected surface flux physics into the NU-WRF model is available in the branch `seolab_spray`, created from the `develop` branch of the `nu-wrf-dev` project in the `ASTG/NUWRF` group on GitLab. All source code modifications are viewable on GitLab, with the major changes summarized below.
+The implementation of sea spray and wave-affected surface flux physics into the NU-WRF model is available in the branch `seolab_spray`, created from the `develop` branch of the `nu-wrf-dev` project in the `ASTG/NUWRF` group on GitLab. All source code modifications are viewable on GitLab, with the code changes (7 files modified/added) summarized below.
 
 - **WRF/dyn_em/module_first_rk_step_part1.F**: In subroutine `first_rk_step_part1`, passed new arguments from memory (wave input variables and spray output variables) to the call to the subroutine `surface_driver`.
 - **WRF/phys/module_surface_driver.F**: 
@@ -21,6 +21,7 @@ The implementation of sea spray and wave-affected surface flux physics into the 
 - **WRF/Registry/Registry.EM_COMMON**: Added wave input variables and spray output variables.
 - Updated **WRF/main/depend.common** and **WRF/phys/Makefile** to include new file **module_sf_sprayHFs.F**.
 
+The folder **NU-WRF/wave_sea_spray/WRF** in this repo contains copies of the seven modified/added files that were put onto the NASA NU-WRF GitLab repo.  The directory tree in this repo mirrors that of the NASA GitLab repo.
 
 ## **2. User Guidelines**
 
